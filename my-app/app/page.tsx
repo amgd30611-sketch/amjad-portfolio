@@ -10,7 +10,6 @@ export default function Home() {
     service: 'تطوير موقع ويب',
     details: ''
   });
-
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -20,23 +19,37 @@ export default function Home() {
     setStatus('جاري معالجة طلبك الفاخر...');
 
     try {
-      // التأكد من إرسال البيانات بشكل واضح ومفصل لـ Supabase
+      // أخذ القيم الحالية وتجهيزها بشكل منفصل لضمان عدم التكرار أو قراءة كاش قديم
+      const nameToSend = formData.name.trim();
+      const emailToSend = formData.email.trim();
+      const phoneToSend = formData.phone.trim();
+      const serviceToSend = formData.service;
+      const detailsToSend = formData.details.trim();
+
       const { error } = await supabase
         .from('orders')
         .insert([
           {
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            service: formData.service, // هنا نضمن إرسال القيمة المحدثة بدقة
-            details: formData.details
+            name: nameToSend,
+            email: emailToSend,
+            phone: phoneToSend,
+            service: serviceToSend,
+            details: detailsToSend
           }
         ]);
 
       if (error) throw error;
 
       setStatus('تم استلام طلبك بنجاح! سأتواصل معك قريباً.');
-      setFormData({ name: '', email: '', phone: '', service: 'تطوير موقع ويب', details: '' });
+     
+      // تفريغ يدوي كامل ومضمون للحقول لتجنب تكرار البيانات في الطلب القادم
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        service: 'تطوير موقع ويب',
+        details: ''
+      });
     } catch (error) {
       console.error(error);
       setStatus('حدث خطأ غير متوقع، يرجى المحاولة لاحقاً');
@@ -47,23 +60,28 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#fcfcfc] text-[#1a1a1a] p-4 md:p-12 flex flex-col items-center justify-center font-sans antialiased">
+      {/* 1. تكبير وضبط الخطوط (خط ضخم جداً للعنوان) */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@700&family=Cairo:wght@400;600&display=swap');
       
+        /* 2. تكبير حجم خط العنوان الرئيسي بشكل ضخم */
         .font-main-title {
             font-family: 'Reem Kufi', sans-serif;
-            font-size: 4rem;
+            font-size: 4rem; /* تكبير ضخم جداً */
             @media (min-width: 768px) {
-                font-size: 6rem;
+                font-size: 6rem; /* تكبير مضاعف على الشاشات الكبيرة */
             }
         }
+        /* 3. خط لبقية النصوص */
         .font-body { font-family: 'Cairo', sans-serif; }
       `}</style>
 
       <div className="w-full max-w-4xl text-center mb-12">
+        {/* 4. العنوان الرئيسي المعدل والمكبر */}
         <h1 className="font-main-title mb-6 bg-gradient-to-r from-amber-500 to-amber-800 bg-clip-text text-transparent drop-shadow-md">
           اطلب مشروعك
         </h1>
+        {/* 5. زيادة النص هنا بشكل ملحوظ */}
         <p className="font-body text-gray-600 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
           نحن هنا لتحويل طموحاتك الرقمية إلى واقع مبهر.
           لا تتردد في طلب خدمتك التقنية الاحترافية الآن، دعنا نتولى التفاصيل لنقدم لك حلاً ذهبياً يتجاوز توقعاتك ويرسخ مكانتك في السوق.
@@ -112,10 +130,9 @@ export default function Home() {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 mr-1 text-right">نوع الخدمة</label>
-            {/* إضافة اسم للحقل name="service" لضمان قراءة المتصفحات له بشكل رسمي وتجنب الكاش القديم */}
             <select
               name="service"
-              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 outline-none focus:border-amber-500 transition-all text-right appearance-none font-body"
+              className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 outline-none focus:border-amber-500 transition-all text-right appearance-none"
               value={formData.service}
               onChange={(e) => setFormData({...formData, service: e.target.value})}
             >
