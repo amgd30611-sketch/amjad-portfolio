@@ -19,30 +19,25 @@ export default function Home() {
     setStatus('جاري معالجة طلبك الفاخر...');
 
     try {
-      // أخذ القيم الحالية وتجهيزها بشكل منفصل لضمان عدم التكرار أو قراءة كاش قديم
-      const nameToSend = formData.name.trim();
-      const emailToSend = formData.email.trim();
-      const phoneToSend = formData.phone.trim();
-      const serviceToSend = formData.service;
-      const detailsToSend = formData.details.trim();
+      // حظر الترجمة والتكرار عبر عزل البيانات يدوياً وتجهيزها بنصوصها الصافية
+      const dataToInsert = {
+        name: String(formData.name).trim(),
+        email: String(formData.email).trim(),
+        phone: String(formData.phone).trim(),
+        service: String(formData.service),
+        details: String(formData.details).trim()
+      };
 
+      // إرسال البيانات المحددة بدقة لـ Supabase لمنع أي تلاعب من المتصفح
       const { error } = await supabase
         .from('orders')
-        .insert([
-          {
-            name: nameToSend,
-            email: emailToSend,
-            phone: phoneToSend,
-            service: serviceToSend,
-            details: detailsToSend
-          }
-        ]);
+        .insert([dataToInsert]);
 
       if (error) throw error;
 
       setStatus('تم استلام طلبك بنجاح! سأتواصل معك قريباً.');
      
-      // تفريغ يدوي كامل ومضمون للحقول لتجنب تكرار البيانات في الطلب القادم
+      // إعادة تعيين الـ State فوراً لتصفير الحقول ومنع التكرار
       setFormData({
         name: '',
         email: '',
@@ -59,29 +54,25 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfcfc] text-[#1a1a1a] p-4 md:p-12 flex flex-col items-center justify-center font-sans antialiased">
-      {/* 1. تكبير وضبط الخطوط (خط ضخم جداً للعنوان) */}
+    // إضافة translate="no" لمنع ترجمة جوجل من العبث بنصوص وعناصر الصفحة
+    <div translate="no" className="min-h-screen bg-[#fcfcfc] text-[#1a1a1a] p-4 md:p-12 flex flex-col items-center justify-center font-sans antialiased">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@700&family=Cairo:wght@400;600&display=swap');
       
-        /* 2. تكبير حجم خط العنوان الرئيسي بشكل ضخم */
         .font-main-title {
             font-family: 'Reem Kufi', sans-serif;
-            font-size: 4rem; /* تكبير ضخم جداً */
+            font-size: 4rem;
             @media (min-width: 768px) {
-                font-size: 6rem; /* تكبير مضاعف على الشاشات الكبيرة */
+                font-size: 6rem;
             }
         }
-        /* 3. خط لبقية النصوص */
         .font-body { font-family: 'Cairo', sans-serif; }
       `}</style>
 
       <div className="w-full max-w-4xl text-center mb-12">
-        {/* 4. العنوان الرئيسي المعدل والمكبر */}
         <h1 className="font-main-title mb-6 bg-gradient-to-r from-amber-500 to-amber-800 bg-clip-text text-transparent drop-shadow-md">
           اطلب مشروعك
         </h1>
-        {/* 5. زيادة النص هنا بشكل ملحوظ */}
         <p className="font-body text-gray-600 text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
           نحن هنا لتحويل طموحاتك الرقمية إلى واقع مبهر.
           لا تتردد في طلب خدمتك التقنية الاحترافية الآن، دعنا نتولى التفاصيل لنقدم لك حلاً ذهبياً يتجاوز توقعاتك ويرسخ مكانتك في السوق.
@@ -90,7 +81,7 @@ export default function Home() {
 
       <div className="w-full max-w-xl bg-white border border-gray-100 p-8 md:p-10 rounded-[2.5rem] shadow-[0_25px_60px_rgba(0,0,0,0.06)]">
       
-        <form onSubmit={handleSubmit} className="font-body space-y-6">
+        <form onSubmit={handleSubmit} className="font-body space-y-6" autoComplete="off">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 mr-1 text-right">الاسم الكامل</label>
             <input
@@ -131,7 +122,6 @@ export default function Home() {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 mr-1 text-right">نوع الخدمة</label>
             <select
-              name="service"
               className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-5 py-4 outline-none focus:border-amber-500 transition-all text-right appearance-none"
               value={formData.service}
               onChange={(e) => setFormData({...formData, service: e.target.value})}
